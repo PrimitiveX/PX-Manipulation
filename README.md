@@ -1,6 +1,8 @@
 # Clone the repo
 git clone https://github.com/PrimitiveX/PX-Manipulation.git
+
 git clone https://github.com/facebookresearch/vggt.git
+
 cd PX-Manipulation
 
 # Create conda environment
