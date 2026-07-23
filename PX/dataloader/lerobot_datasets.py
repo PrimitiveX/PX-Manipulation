@@ -5,9 +5,45 @@ from typing import Sequence
 from omegaconf import OmegaConf
 
 from PX.dataloader.gr00t_lerobot.datasets import LeRobotSingleDataset, LeRobotMixtureDataset, ValidationLeRobotMixtureDataset
-from PX.dataloader.gr00t_lerobot.mixtures import DATASET_NAMED_MIXTURES
 from PX.dataloader.gr00t_lerobot.data_config import ROBOT_TYPE_CONFIG_MAP
 from PX.dataloader.gr00t_lerobot.embodiment_tags import ROBOT_TYPE_TO_EMBODIMENT_TAG, EmbodimentTag
+
+# BEGIN PX_LOCAL_MIXTURE_OVERRIDE
+# Rollback import:
+# from PX.dataloader.gr00t_lerobot.mixtures import DATASET_NAMED_MIXTURES
+def resolve_mixture_spec(data_cfg):
+    """Resolve an optional config-defined mixture before using the global registry."""
+    data_mix = data_cfg.data_mix
+    local_specs = data_cfg.get("mixture_specs")
+
+    if local_specs is not None and data_mix in local_specs:
+        return OmegaConf.to_container(local_specs[data_mix], resolve=True)
+
+    root_specs = data_cfg.get("mixture_root_specs")
+    if root_specs is not None and data_mix in root_specs:
+        mixture = []
+        for rel_root, root_weight, robot_type, dataset_config in OmegaConf.to_container(
+            root_specs[data_mix], resolve=True
+        ):
+            abs_root = Path(data_cfg.data_root_dir) / rel_root
+            if not abs_root.is_dir():
+                raise FileNotFoundError(f"Dataset root does not exist: {abs_root}")
+            dataset_names = sorted(path.name for path in abs_root.iterdir() if path.is_dir())
+            if not dataset_names:
+                raise FileNotFoundError(f"No datasets found under: {abs_root}")
+            dataset_weight = root_weight / len(dataset_names)
+            mixture.extend(
+                (str(Path(rel_root) / name), dataset_weight, robot_type, dataset_config)
+                for name in dataset_names
+            )
+        return mixture
+
+    # Keep the original registry behavior for every mixture without a local
+    # override, while avoiding its eager initialization when an override exists.
+    from PX.dataloader.gr00t_lerobot.mixtures import DATASET_NAMED_MIXTURES
+
+    return DATASET_NAMED_MIXTURES[data_mix]
+# END PX_LOCAL_MIXTURE_OVERRIDE
 
 def collate_fn(batch):
     return batch
@@ -65,7 +101,10 @@ def get_vla_dataset(
     data_root_dir = data_cfg.data_root_dir
     data_mix = data_cfg.data_mix
     delete_pause_frame = data_cfg.get("delete_pause_frame", False)
-    mixture_spec = DATASET_NAMED_MIXTURES[data_mix]
+    # BEGIN PX_LOCAL_MIXTURE_OVERRIDE
+    # Original: mixture_spec = DATASET_NAMED_MIXTURES[data_mix]
+    mixture_spec = resolve_mixture_spec(data_cfg)
+    # END PX_LOCAL_MIXTURE_OVERRIDE
     included_datasets, filtered_mixture_spec = set(), []
     for dataset_item in mixture_spec:
         if len(dataset_item) == 3:
@@ -129,7 +168,10 @@ def get_vla_dataset_test(
     data_root_dir = data_cfg.data_root_dir
     data_mix = data_cfg.data_mix
     delete_pause_frame = data_cfg.get("delete_pause_frame", False)
-    mixture_spec = DATASET_NAMED_MIXTURES[data_mix]
+    # BEGIN PX_LOCAL_MIXTURE_OVERRIDE
+    # Original: mixture_spec = DATASET_NAMED_MIXTURES[data_mix]
+    mixture_spec = resolve_mixture_spec(data_cfg)
+    # END PX_LOCAL_MIXTURE_OVERRIDE
     included_datasets, filtered_mixture_spec = set(), []
     for dataset_item in mixture_spec:
         if len(dataset_item) == 3:

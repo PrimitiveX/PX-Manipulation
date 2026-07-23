@@ -1,0 +1,29 @@
+# Model assets and checkpoints
+/base_vlms/
+/checkpoints/
+
+# Generated outputs
+/outputs/
+/wandb/
+
+# Publish only the LIBERO example for now
+/examples/*
+!/examples/LIBERO/
+!/examples/LIBERO/**
+
+# Python build and cache files
+__pycache__/
+*.py[cod]
+*.egg-info/
+.cache/
+build/
+dist/
+
+# Local environments and editor files
+.env
+.venv/
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
