@@ -1,0 +1,13 @@
+policy_name: PX
+task_name: null
+task_config: null
+ckpt_setting: null
+seed: null
+instruction_type: unseen
+
+# PX Client Parameters
+host: "127.0.0.1"
+port: 5694
+policy_ckpt_path: "/mnt/users/cfr_project/vla/px/PX-Manipulation/checkpoints/ABot-M0-RoboTwin2/checkpoints/steps_125000_pytorch_model.pt"
+unnorm_key: "robotwin"
+action_mode: "abs"

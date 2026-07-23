@@ -12,6 +12,8 @@
 !/examples/LIBERO/**
 !/examples/Pretrain/
 !/examples/Pretrain/**
+!/examples/Robotwin/
+!/examples/Robotwin/**
 
 # Python build and cache files
 __pycache__/
