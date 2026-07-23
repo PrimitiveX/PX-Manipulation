@@ -10,6 +10,8 @@
 /examples/*
 !/examples/LIBERO/
 !/examples/LIBERO/**
+!/examples/Pretrain/
+!/examples/Pretrain/**
 
 # Python build and cache files
 __pycache__/
