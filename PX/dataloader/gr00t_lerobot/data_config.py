@@ -43,8 +43,8 @@ class BaseDataConfig(ABC):
 
 class Libero4in1DataConfig:
     video_keys = [
-        "video.primary_image_compress",
-        "video.wrist_image_compress",
+        "video.primary_image",
+        "video.wrist_image",
     ]
     
     state_keys = [

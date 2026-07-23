@@ -22,7 +22,7 @@ framework:
     add_pos_embed: True
     max_seq_len: 1024
     action_dim: 14
-    state_dim: 7
+    state_dim: 14
     future_action_window_size: 9
     action_horizon: 10 # need merge with future_action_window_size 
     past_action_window_size: 0
@@ -51,6 +51,16 @@ datasets:
     dataset_py: lerobot_datasets
     data_root_dir: path_to_your_libero_data
     data_mix: libero
+    # BEGIN PX_LOCAL_MIXTURE_OVERRIDE
+    # Optional per-mixture registry. Any data_mix not listed here falls back to
+    # PX/dataloader/gr00t_lerobot/mixtures.py without changing its behavior.
+    mixture_specs:
+      libero:
+        - [libero_10_no_noops_1.0.0_lerobot, 0.25, libero_franka, {lerobot_version: v2.0}]
+        - [libero_goal_no_noops_1.0.0_lerobot, 0.25, libero_franka, {lerobot_version: v2.0}]
+        - [libero_object_no_noops_1.0.0_lerobot, 0.25, libero_franka, {lerobot_version: v2.0}]
+        - [libero_spatial_no_noops_1.0.0_lerobot, 0.25, libero_franka, {lerobot_version: v2.0}]
+    # END PX_LOCAL_MIXTURE_OVERRIDE
     action_type: delta_qpos
     include_state: false
     sequential_step_sampling: False
